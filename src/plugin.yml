@@ -1,0 +1,6 @@
+name: ItemLogger
+version: 1.0
+author: Alvin
+main: me.alvin.ItemLogger.ItemLogger
+description: Logges sertain item and block breaks, moves, drops, despawn, damage, etc to the console
+api-version: 1.13
