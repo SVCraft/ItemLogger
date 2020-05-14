@@ -1,6 +1,11 @@
 name: ItemLogger
 version: 1.0
 author: Alvin
-main: me.alvin.ItemLogger.ItemLogger
+main: me.svcraft.itemlogger.ItemLogger
 description: Logges sertain item and block breaks, moves, drops, despawn, damage, etc to the console
 api-version: 1.13
+commands:
+  itemlogger:
+    permission: itemlogger.reload
+    usage: /itemlogger reload
+    description: Reload the logger materials and entity types from the config

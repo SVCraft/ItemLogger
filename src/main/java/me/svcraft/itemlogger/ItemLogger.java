@@ -1,30 +1,55 @@
-package me.alvin.ItemLogger;
+package me.svcraft.itemlogger;
 
+import me.svcraft.minigames.config.Config;
+import me.svcraft.minigames.plugin.SVCraftPlugin;
 import org.bukkit.Material;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.entity.EntityType;
-import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ItemLogger extends JavaPlugin {
+public class ItemLogger extends SVCraftPlugin {
     private List<Material> loggedMaterials = new ArrayList<>();
     private List<EntityType> loggedEntityTypes = new ArrayList<>();
 
     @Override
-    public void onEnable() {
-        this.getServer().getPluginManager().registerEvents(new EventListener(this), this);
+    public void onPluginEnable() {
+        this.registerPerWorldEvents(new EventListener(this));
+        this.registerCommand("itemlogger", new Command(this));
+
+        try {
+            this.reload();
+        } catch (IOException | InvalidConfigurationException e) {
+            this.crash("ItemLogger#reload", e);
+        }
+
+        getLogger().info("ItemLogger enabled");
+    }
+
+    @Override
+    public void onPluginDisable() {
+        getLogger().info("ItemLogger disabled");
+    }
+
+    @Override
+    public void reload() throws IOException, InvalidConfigurationException {
+        super.reload();
+
+        Config config = this.getConfigManager().getConfig("config");
 
         // Materials
 
-        getConfig().options().copyDefaults(true);
-        if (getConfig().isSet("loggedMaterials") && getConfig().isList("loggedMaterials")) {
-            List<String> loggedMaterials = getConfig().getStringList("loggedMaterials");
+        this.loggedMaterials.clear();
+
+        if (config.isSet("loggedMaterials") && config.isList("loggedMaterials")) {
+            List<String> loggedMaterials = config.getStringList("loggedMaterials");
 
             for (String stringMaterial : loggedMaterials) {
                 Material material = Material.getMaterial(stringMaterial);
                 if (material == null || material == Material.AIR) {
-                    getLogger().warning("Material \""+ stringMaterial + "\" not found");
+                    this.getLogger().warning("Material \""+ stringMaterial + "\" not found");
                 } else {
                     this.loggedMaterials.add(material);
                 }
@@ -51,23 +76,25 @@ public class ItemLogger extends JavaPlugin {
             for (Material loggedMaterial : this.loggedMaterials) {
                 stringLoggedMaterials.add(loggedMaterial.toString());
             }
-            getConfig().addDefault("loggedMaterials", stringLoggedMaterials);
-            saveConfig();
+            config.set("loggedMaterials", stringLoggedMaterials);
+            config.save();
         }
 
-        String loggedMaterials = "";
+        StringBuilder loggedMaterials = new StringBuilder();
         for (int i = 0; i < this.loggedMaterials.size(); i++) {
             Material loggedMaterial = this.loggedMaterials.get(i);
 
             boolean isLast = (i + 1) == this.loggedMaterials.size();
-            loggedMaterials += loggedMaterial.toString() + (isLast ? "" : ", ");
+            loggedMaterials.append(loggedMaterial.toString()).append(isLast ? "" : ", ");
         }
-        getLogger().info("Logging these materials: "+ loggedMaterials);
+        this.getLogger().info("Logging these materials: "+ loggedMaterials);
 
         // EntityTypes
 
-        if (getConfig().isSet("loggedEntityTypes") && getConfig().isList("loggedEntityTypes")) {
-            List<String> loggedEntityTypes = getConfig().getStringList("loggedEntityTypes");
+        this.loggedEntityTypes.clear();
+
+        if (config.isSet("loggedEntityTypes") && config.isList("loggedEntityTypes")) {
+            List<String> loggedEntityTypes = config.getStringList("loggedEntityTypes");
 
             for (String stringEntityType : loggedEntityTypes) {
                 EntityType entityType;
@@ -89,16 +116,18 @@ public class ItemLogger extends JavaPlugin {
             for (EntityType loggedEntityType : this.loggedEntityTypes) {
                 stringLoggedEntityTypes.add(loggedEntityType.toString());
             }
-            getConfig().addDefault("loggedEntityTypes", stringLoggedEntityTypes);
-            saveConfig();
+            config.set("loggedEntityTypes", stringLoggedEntityTypes);
+            config.save();
         }
 
-        getLogger().info("ItemLogger enabled");
-    }
+        StringBuilder loggedEntityTypes = new StringBuilder();
+        for (int i = 0; i < this.loggedEntityTypes.size(); i++) {
+            EntityType loggedEntityType = this.loggedEntityTypes.get(i);
 
-    @Override
-    public void onDisable() {
-        getLogger().info("ItemLogger disabled");
+            boolean isLast = (i + 1) == this.loggedEntityTypes.size();
+            loggedEntityTypes.append(loggedEntityType.toString()).append(isLast ? "" : ", ");
+        }
+        this.getLogger().info("Logging these entity types: "+ loggedEntityTypes);
     }
 
     public List<Material> getLoggedMaterials() {

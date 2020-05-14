@@ -1,16 +1,16 @@
-package me.alvin.ItemLogger;
+package me.svcraft.itemlogger;
 
+import me.svcraft.minigames.world.event.PerWorldListener;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -25,11 +25,16 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Collection;
 
-class EventListener implements Listener {
+class EventListener implements PerWorldListener {
     private ItemLogger itemLogger;
 
     EventListener(ItemLogger itemLogger) {
         this.itemLogger = itemLogger;
+    }
+
+    @Override
+    public boolean isEnabledIn(World world) {
+        return this.itemLogger.isEnabledIn(world);
     }
 
     private String formatLocation(Location location) {

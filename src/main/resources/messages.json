@@ -1,0 +1,4 @@
+{
+  "command.reload.success": "§aThe config has been reloaded",
+  "command.reload.fail": "§cFailed to reload the config"
+}
